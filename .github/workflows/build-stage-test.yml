@@ -1,6 +1,8 @@
 name: 'Multi-version Build Pipeline'
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       matlab_versions:
@@ -40,6 +42,7 @@ jobs:
       is_supplementary_build: true
       run_security_scan: true
       skip_build: true
+      skip_test: false
     secrets: inherit
 
   release-artifacts:
