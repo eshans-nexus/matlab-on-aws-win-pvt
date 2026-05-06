@@ -1,0 +1,54 @@
+name: 'Multi-version Build Pipeline'
+
+on:
+  workflow_dispatch:
+    inputs:
+      matlab_versions:
+        description: "Comma-separated list (e.g. R2025a,R2024b). Empty = Latest 5."
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  id-token: write          # Required for AWS OIDC (Packer, Distribute)
+  contents: write          # Required for Creating Releases (gh-release)
+  attestations: write      # Required for SLSA Attestations
+  security-events: write   # Required for uploading Trivy SARIF results
+  actions: read            # Sometimes required if the repo is private/internal
+
+jobs:
+  prepare-versions:
+    uses: eshans-nexus/actions-templates/.github/workflows/module-gh-get-versions.yml@github
+    with:
+      input_versions: ${{ inputs.matlab_versions }}
+      search_dir: './releases'
+
+  create-artifacts:
+    needs: prepare-versions
+    if: ${{ needs.prepare-versions.outputs.matrix != '[]' }}
+    strategy:
+        fail-fast: false
+        max-parallel: 5
+        matrix:
+          version: ${{ fromJson(needs.prepare-versions.outputs.matrix) }}
+    uses: eshans-nexus/actions-templates/.github/workflows/orchestrator-aws-single.yml@github
+    with:
+      matlab_version: ${{ matrix.version }}
+      flavor: 'matlab-windows'
+      packer_dir: './packer/v1'
+      metatemplate_file_path: 'src/aws-matlab-template.json'
+      is_supplementary_build: true
+      run_security_scan: true
+      skip_build: true
+    secrets: inherit
+
+  release-artifacts:
+    name: Create Aggregate GH Release
+    needs: [prepare-versions, create-artifacts]
+    uses: eshans-nexus/actions-templates/.github/workflows/orchestrator-gh-release.yml@github
+    with:
+      target_versions: ${{ needs.prepare-versions.outputs.matrix }}
+      s3_bucket_url: "https://s3.amazonaws.com/matlab-on-aws-win-bucket"
+      dual_repo_url: "https://github.com/mathworks-ref-arch/matlab-on-aws"
+      is_supplementary_build: true
+    secrets: inherit
