@@ -43,6 +43,7 @@ jobs:
       run_security_scan: true
       skip_build: true
       skip_test: false
+      lambda_code_file: 'src/attachinstanceprofile.py'
     secrets: inherit
 
   release-artifacts:
