@@ -42,7 +42,7 @@ jobs:
       is_supplementary_build: true
       run_security_scan: true
       skip_build: true
-      skip_test: true
+      skip_test: false
     secrets: inherit
 
   release-artifacts:
