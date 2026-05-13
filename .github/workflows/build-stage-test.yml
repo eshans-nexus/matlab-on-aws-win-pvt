@@ -44,7 +44,10 @@ jobs:
       skip_build: ${{ vars.SKIP_BUILD == 'true' }}
       skip_test: ${{ vars.SKIP_TEST == 'true' }}
       lambda_code_file: 'src/attachinstanceprofile.py'
-    secrets: inherit
+    secrets:
+      AWS_OIDC_ROLE: ${{ secrets.AWS_OIDC_ROLE }}
+      TEST_VPC_ID: ${{ secrets.TEST_VPC_ID }}
+      TEST_SUBNET_ID: ${{ secrets.TEST_SUBNET_ID }}
 
   release-artifacts:
     name: Create Aggregate GH Release
