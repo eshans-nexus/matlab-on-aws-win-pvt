@@ -58,4 +58,5 @@ jobs:
       s3_bucket_url: "https://s3.amazonaws.com/matlab-on-aws-win-bucket"
       dual_repo_url: "https://github.com/mathworks-ref-arch/matlab-on-aws"
       is_supplementary_build: true
+      generate_attestations: ${{ vars.GENERATE_ATTESTATIONS != 'false' }}
     secrets: inherit
