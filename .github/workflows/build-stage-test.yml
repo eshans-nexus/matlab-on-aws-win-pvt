@@ -41,8 +41,8 @@ jobs:
       metatemplate_file_path: 'src/aws-matlab-template.json'
       is_supplementary_build: true
       run_security_scan: false
-      skip_build: false
-      skip_test: false
+      skip_build: ${{ vars.SKIP_BUILD == 'true' }}
+      skip_test: ${{ vars.SKIP_TEST == 'true' }}
       lambda_code_file: 'src/attachinstanceprofile.py'
     secrets: inherit
 
